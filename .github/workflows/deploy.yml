@@ -1,0 +1,38 @@
+name: Deploy Koffee Pipeline
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Deploy Glue script to S3
+        run: |
+          aws s3 cp glue/bronze_to_silver.py s3://aws-glue-assets-375170594858-ap-south-1/scripts/coffee_orders_script.py
+
+      - name: Deploy Lambda 1
+        run: |
+          zip lambda1.zip lambda/lambda1_trigger_glue.py
+          aws lambda update-function-code \
+            --function-name coffee_order_bronze_trigger \
+            --zip-file fileb://lambda1.zip
+
+      - name: Deploy Lambda 2
+        run: |
+          zip lambda2.zip lambda/lambda2_copy_to_redshift.py
+          aws lambda update-function-code \
+            --function-name coffee_order_redshift_ingestion \
+            --zip-file fileb://lambda2.zip
