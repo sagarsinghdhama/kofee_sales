@@ -19,9 +19,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
 
-      - name: Deploy Glue script to S3
+      - name: Deploy Glue script 1 to S3
         run: |
           aws s3 cp glue/bronze_to_silver.py s3://aws-glue-assets-375170594858-ap-south-1/scripts/coffee_orders_script.py
+
+      - name: Deploy Glue script 2 to S3
+        run: |
+          aws s3 cp glue/redshift_load.py s3://aws-glue-assets-375170594858-ap-south-1/scripts/redshift_load.py
 
       - name: Deploy Lambda 1
         run: |
