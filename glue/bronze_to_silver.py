@@ -98,4 +98,4 @@ def main():
     
     logger.info("Pipeline complete")
 
-main()
+main()    #testing CI/CD workings
